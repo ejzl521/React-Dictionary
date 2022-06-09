@@ -34,7 +34,7 @@ const App = () => {
   return (
     <div className="flex flex-col h-[1000px] justify-center items-center ">
       <div className="flex flex-col jusifiy-center max-w-[800px] max-h-[600px] overflow-auto p-[30px] scrollbar-hide border-4 border-indigo-500/100 rounded">
-        <div className="text-[30px] font-bold ">MY Dictionary 44</div>
+        <div className="text-[30px] font-bold ">MY Dictionary 444</div>
         <hr className="my-[5px]" />
         {dict_list.map((item, index) => {
           return (
