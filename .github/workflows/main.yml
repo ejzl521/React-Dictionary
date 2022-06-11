@@ -1,4 +1,4 @@
-name: Main CI
+name: Deploy to Production
 
 on:
   push:
@@ -6,21 +6,35 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-18.04
     steps:
-      - name: git clone
-        uses: actions/checkout@v2
+      - name: Checkout source code
+        uses: actions/checkout@master
 
-      - name: npm install
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+
+      - name: Install Dependencies
         run: npm install
 
-      - name: npm build
+      - name: Build
         run: npm run build
-
-      - name: deploy
         env:
-          AWS_ACCESS_KEY_ID: '$'
-          AWS_SECRET_ACCESS_KEY: '$'
-        run:
-          aws s3 cp --recursive --region ap-northeast-2 dist s3://duckgugong.shop
+          CI: ''
+
+      - name: Deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp \
+            --recursive \
+            --region ap-northeast-2 \
+            build s3://duckgugong.shop
