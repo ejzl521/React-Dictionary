@@ -1,31 +1,33 @@
-name: main
+name: Deploy to Production
 
 on:
   push:
     branches:
-      - main    # main 브랜치에서 push 이벤트가 일어났을 때 실행
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@master
 
-      - name: Cache node modules  # node modules 캐싱
+      - name: Cache node modules
         uses: actions/cache@v1
         with:
           path: node_modules
-          key: ${{ runner.OS }}-master-build-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
 
       - name: Install Dependencies
-        run: yarn
+        run: npm install
 
       - name: Build
-        run: CI='' yarn build
+        run: npm run build
+        env:
+          CI: ''
 
       - name: Deploy
         env:
@@ -35,4 +37,4 @@ jobs:
           aws s3 cp \
             --recursive \
             --region ap-northeast-2 \
-            dist s3://duckgugong.shop
+            build s3://duckgugong.shop
